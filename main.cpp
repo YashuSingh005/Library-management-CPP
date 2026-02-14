@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <cstdio>
+
 using namespace std;
 
 class Book {
@@ -26,14 +27,14 @@ public:
         file << id << "," << title << "," << author << ",Available" << endl;
         file.close();
 
-        cout << "✅ Book Added Successfully!\n";
+        cout << "Book added successfully.\n";
     }
 
     void viewBooks() {
         ifstream file("library.txt");
         string line;
 
-        cout << "\n📚 --- Library Books ---\n";
+        cout << "\nLibrary Records:\n";
 
         if (!file) {
             cout << "No records found.\n";
@@ -41,7 +42,8 @@ public:
         }
 
         while (getline(file, line)) {
-            cout << line << endl;
+            if (!line.empty())
+                cout << line << endl;
         }
 
         file.close();
@@ -58,17 +60,29 @@ public:
         cin >> searchID;
 
         while (getline(file, line)) {
-            int id = stoi(line.substr(0, line.find(',')));
 
-            if (id == searchID) {
-                cout << "🔍 Book Found: " << line << endl;
-                found = true;
-                break;
+            if (line.empty()) continue;
+
+            int commaPos = line.find(',');
+            if (commaPos == string::npos) continue;
+
+            string idStr = line.substr(0, commaPos);
+
+            try {
+                int id = stoi(idStr);
+
+                if (id == searchID) {
+                    cout << "Book Found: " << line << endl;
+                    found = true;
+                    break;
+                }
+            } catch (...) {
+                continue;
             }
         }
 
         if (!found)
-            cout << "❌ Book Not Found\n";
+            cout << "Book not found.\n";
 
         file.close();
     }
@@ -84,37 +98,35 @@ public:
         cout << "Enter Book ID to issue: ";
         cin >> issueID;
 
-       while (getline(file, line)) {
+        while (getline(file, line)) {
 
-    if (line.empty()) continue;
+            if (line.empty()) continue;
 
-    int commaPos = line.find(',');
+            int commaPos = line.find(',');
+            if (commaPos == string::npos) continue;
 
-    if (commaPos == string::npos) continue;
+            string idStr = line.substr(0, commaPos);
 
-    string idStr = line.substr(0, commaPos);
+            try {
+                int id = stoi(idStr);
 
-    try {
-        int id = stoi(idStr);
+                if (id == issueID) {
+                    temp << id
+                         << line.substr(line.find(','), line.rfind(',') - line.find(','))
+                         << ",Issued\n";
+                    found = true;
+                    cout << "Book issued successfully.\n";
+                } else {
+                    temp << line << endl;
+                }
 
-        if (id == issueID) {
-            temp << id
-                 << line.substr(line.find(','), line.rfind(',') - line.find(','))
-                 << ",Issued\n";
-            cout << "📕 Book Issued!\n";
-            found = true;
-        } else {
-            temp << line << endl;
+            } catch (...) {
+                temp << line << endl;
+            }
         }
-    }
-    catch (...) {
-        temp << line << endl;
-    }
-}
-
 
         if (!found)
-            cout << "❌ Book not found\n";
+            cout << "Book not found.\n";
 
         file.close();
         temp.close();
@@ -134,37 +146,35 @@ public:
         cout << "Enter Book ID to return: ";
         cin >> returnID;
 
-    while (getline(file, line)) {
+        while (getline(file, line)) {
 
-    if (line.empty()) continue;
+            if (line.empty()) continue;
 
-    int commaPos = line.find(',');
+            int commaPos = line.find(',');
+            if (commaPos == string::npos) continue;
 
-    if (commaPos == string::npos) continue;
+            string idStr = line.substr(0, commaPos);
 
-    string idStr = line.substr(0, commaPos);
+            try {
+                int id = stoi(idStr);
 
-    try {
-        int id = stoi(idStr);
+                if (id == returnID) {
+                    temp << id
+                         << line.substr(line.find(','), line.rfind(',') - line.find(','))
+                         << ",Available\n";
+                    found = true;
+                    cout << "Book returned successfully.\n";
+                } else {
+                    temp << line << endl;
+                }
 
-        if (id == returnID) {
-            temp << id
-                 << line.substr(line.find(','), line.rfind(',') - line.find(','))
-                 << ",Available\n";
-            cout << "📗 Book Returned!\n";
-            found = true;
-        } else {
-            temp << line << endl;
+            } catch (...) {
+                temp << line << endl;
+            }
         }
-    }
-    catch (...) {
-        temp << line << endl;
-    }
-}
-
 
         if (!found)
-            cout << "❌ Book not found\n";
+            cout << "Book not found.\n";
 
         file.close();
         temp.close();
@@ -181,7 +191,7 @@ int main() {
 
     while (true) {
 
-        cout << "\n====== 📚 Library Management System ======\n";
+        cout << "\nLibrary Management System\n";
         cout << "1. Add Book\n";
         cout << "2. View Books\n";
         cout << "3. Search Book\n";
@@ -200,12 +210,8 @@ int main() {
             case 3: book.searchBook(); break;
             case 4: book.issueBook(); break;
             case 5: book.returnBook(); break;
-            case 6:
-                cout << "👋 Exiting...";
-                return 0;
-
-            default:
-                cout << "❌ Invalid choice!";
+            case 6: return 0;
+            default: cout << "Invalid choice.\n";
         }
     }
 }
