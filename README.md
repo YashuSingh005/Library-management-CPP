@@ -53,6 +53,7 @@ The system allows users to:
 
 ## How It Works
 - Each book is stored in this format:
+- ID,Title,Author,Status
 
 ## how to run 
 - g++ main.cpp -o library
